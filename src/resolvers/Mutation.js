@@ -10,7 +10,7 @@ const Mutation = {
 
     const user = {
       id: uuidv4(),
-      ...args.data
+      ...args.data,
     }
 
     db.users.push(user)
@@ -76,7 +76,7 @@ const Mutation = {
 
     const post = {
       id: uuidv4(),
-      ...args.data
+      ...args.data,
     }
 
     db.posts.push(post)
@@ -118,7 +118,7 @@ const Mutation = {
 
     return post
   },
-  createComment(parent, args, { db }, info) {
+  createComment(parent, args, { db, pubsub }, info) {
     const authorExists = db.users.some((user) => user.id === args.data.author)
     if (!authorExists) {
       throw new Error('The author of the comment does not exist.')
@@ -138,10 +138,11 @@ const Mutation = {
 
     const comment = {
       id: uuidv4(),
-      ...args.data
+      ...args.data,
     }
 
     db.comments.push(comment)
+    pubsub.publish(`comment ${args.data.post}`, { comment })
 
     return comment
   },
@@ -171,7 +172,7 @@ const Mutation = {
     }
 
     return comment
-  }
+  },
 }
 
 export { Mutation as default }
